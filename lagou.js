@@ -1,14 +1,14 @@
 var http = require("https");
 var cheerio = require("cheerio");
-var fs = require('fs');
-var outstream = fs.createWriteStream('./output.csv');
-
-// 请求并获得数据
-var req;
-var options;
-var SERVER_URL = "//recruit.21cn.com";
-var cheerData = {}
+var req,
+    options,
+    SERVER_URL = "//recruit.21cn.com",
+    candidateInfo = {}, 
+    educationList = {},
+    clubList = {},
+    practicalList = {};
 getData();
+
 function getData(){
     options = {
         hostname:'www.lagou.com',
@@ -16,7 +16,7 @@ function getData(){
         path:'/resume/preview.html',    
         method:'GET',
         headers: {
-            cookie: "_ga=GA1.2.517660036.1536892542; user_trace_token=20180914103541-df2b4de9-b7c6-11e8-b939-5254005c3644; LGUID=20180914103541-df2b5332-b7c6-11e8-b939-5254005c3644; index_location_city=%E5%85%A8%E5%9B%BD; _gid=GA1.2.946790302.1537236741; ab_test_random_num=0; hasDeliver=0; WEBTJ-ID=20180918113609-165eabfe6a8c62-02e91ae17ebfb1-5e442e19-2073600-165eabfe6aa429; Hm_lvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1536892542,1537236742,1537241770; _putrc=E79A7F84FB6D775A123F89F2B170EADC; JSESSIONID=ABAAABAAAIAACBI11C1D7B538FC83B5CD8DCE1D02540528; login=true; unick=%E6%8B%89%E5%8B%BE%E7%94%A8%E6%88%B72800; showExpriedIndex=1; showExpriedCompanyHome=1; showExpriedMyPublish=1; TG-TRACK-CODE=index_resume; gate_login_token=475c98328963626de7baa4d122dcf06a31e1293b23eacb7d444ac687c0d53a72; LGSID=20180918181003-02470f06-bb2b-11e8-a1f3-525400f775ce; PRE_UTM=; PRE_HOST=; PRE_SITE=; PRE_LAND=https%3A%2F%2Fwww.lagou.com%2Fresume%2Fmyresume.html; _gat=1; Hm_lpvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1537265602; LGRID=20180918181321-7881b48d-bb2b-11e8-baf2-5254005c3644"
+            cookie: "WEBTJ-ID=09182018%2C204536-165ecb6eee3abb-0d57e5e090bf33-1130685c-1296000-165ecb6eee42c0; user_trace_token=20180918204549-2cfc70d5-5119-48a9-93fa-e7bf1d227fbb; X_HTTP_TOKEN=24729d6877c5772261906a98f39ea1c5; LGSID=20180918204550-c5bf2332-bb40-11e8-baf2-5254005c3644; PRE_UTM=; PRE_HOST=; PRE_SITE=https%3A%2F%2Fwww.lagou.com%2Flp%2Fhtml%2Fcommon.html%3Futm_source%3Dm_cf_cpc_baidu_pc%26m_kw%3Dbaidu_cpc_gz_3214b8_894875_%25E5%2589%258D%25E7%25A8%258B%25E6%2597%25A0%25E5%25BF%25A7%25E6%258B%259B%25E8%2581%2598%25E7%25BD%2591%25E6%259C%2580%25E6%2596%25B0%25E6%258B%259B%25E8%2581%2598; PRE_LAND=https%3A%2F%2Fpassport.lagou.com%2Flogin%2Flogin.html%3Fservice%3Dhttps%253a%252f%252fwww.lagou.com%252f; LGUID=20180918204550-c5bf25e2-bb40-11e8-baf2-5254005c3644; LG_LOGIN_USER_ID=e587a0485bba7f546c155a7eb41c74b230d0be776c26d0b3dcc1e600b64394d7; _putrc=E79A7F84FB6D775A123F89F2B170EADC; JSESSIONID=ABAAABAAAIAACBIE82DE5B4C60F48DD703E7E21CB795D5E; login=true; unick=test; showExpriedIndex=1; showExpriedCompanyHome=1; showExpriedMyPublish=1; hasDeliver=0; gate_login_token=ff56e34e3a3b36d01a90b5ccf7b38594c5244106b3820425aca3b96e2760ef60; index_location_city=%E5%85%A8%E5%9B%BD; _ga=GA1.2.53206537.1537274787; _gat=1; TG-TRACK-CODE=index_resume; LGRID=20180918204645-e66096c6-bb40-11e8-a1fb-525400f775ce"
         }
     };
     req = http.request(options, function(resp){
@@ -27,17 +27,62 @@ function getData(){
         });
         resp.on('end',function(){
             var $ = cheerio.load(body);
-            var test = $(".mobile").text();
-            console.log(test);
+            candidateInfo.candidateId = "",
+            candidateInfo.name = $(".mr_p_name .mr_name").text();
+            candidateInfo.sex = $(".base_info em.s").text();
+            candidateInfo.phone = $(".mobile").text();
+            candidateInfo.email = $(".email em").text();
+            var ageStr = $(".base_info em.a").text();
+            candidateInfo.age = getCndidateAge(ageStr);
+            candidateInfo.idcard = "";
+            candidateInfo.politicalAffiliation = "";
+            candidateInfo.desiredSalary = "";
+            candidateInfo.maritalState = "";
+            candidateInfo.bearState = "";
+            candidateInfo.nation = "";
+            candidateInfo.nativePlace = "";
+            candidateInfo.hobby = $("#selfDescription .mr_moudle_content .mr_self_r p").text();
+            candidateInfo.refereeName = "";
+            candidateInfo.certificate = "";
+            candidateInfo.englishLevel = "";
+            candidateInfo.englishScore = "";
+            candidateInfo.jobSkill = "";
+            candidateInfo.opusUrl = $("#socialPage .social-page__list li:first-child a span").text();
+            candidateInfo.awardList = "";
+           
+            educationList.schoolName = $("#educationalBackground .mr_content_l .l2 h4").text();
+            var degree = $("#educationalBackground .mr_content_l .l2 span").text();
+            educationList.degreeId = getDegreeId(degree);
+            var educationTimeStr = $("#educationalBackground .mr_content_r span").text();
+            educationList.startTime =  getEducationStartTime(educationTimeStr);
+            educationList.endTime = getEducationEndTime(educationTimeStr);
+            educationList.specialty = getEducationSpecialty(degree);
+            educationList.rank = "";
+            educationList.score = "";
+            educationList.aveScore = "";
+            educationList.degree = "";
+            educationList.course = "";
+            
+            practicalList.practicalCompany = $("#workExperience .mr_content_l .l2 h4").text();
+            var practicalTimeStr = $("#workExperience .mr_content_r span").text();
+            practicalList.practicalStartTime = getPracticalStartTime(practicalTimeStr);
+            practicalList.practicalEndTime = getpracticalEndTime(practicalTimeStr);
+            practicalList.practicalDepartment = "";
+            practicalList.decription = $("#workExperience .mr_content_m p").text();
+            practicalList.practicalJob = $("#workExperience .mr_content_l .l2 span").text();
+            
+            clubList.clubCompany = "";
+            clubList.clubDepartment = "";
+            clubList.decription = "";
+            clubList.clubStartTime = "";
+            clubList.clubEndTime = "";
+            clubList.clubJob = "";
+            printData();
         });
     });
-
-    // 超时处理
     req.setTimeout(5000,function(){
         req.abort();
     });
-
-    // 出错处理
     req.on('error',function(err){
         if(err.code=="ECONNRESET"){
             console.log('socket端口连接超时。');
@@ -45,30 +90,82 @@ function getData(){
             console.log('请求发生错误，err.code:'+err.code);
         }
     });
-
-    // 请求结束
     req.end();
 }
 
-var personInfo = {
-    candidateId: cheerData.candidateId,
-    name: cheerData.name,
-    sex: cheerData.sex,
-    phone: cheerData.phone,
-    email: cheerData.email,
-    age: cheerData.age,
-    idcard: cheerData.idcard,
-    politicalAffiliation: cheerData.politicalAffiliation,
-    desiredSalary: cheerData.desiredSalary,
-    maritalState: cheerData.maritalState,
-    bearState: cheerData.bearState,
-    nation: cheerData.nation,
-    nativePlace: cheerData.nation,
-    hobby: cheerData.hobby,
-    refereeName: cheerData.refereeName
+function printData(){
+    console.log(candidateInfo);
+    console.log(educationList);
+    console.log(practicalList);
+    console.log(clubList);
+}
+
+function getDegreeId(str){
+    var _str = str.substring(0,2);
+    var ans = 0;
+    switch(_str){
+        case "大专":
+            ans = 0;
+            break;
+        case "本科":
+            ans = 1;
+            break;
+        case "硕士":
+            ans = 2;
+            break;
+        case "博士":
+            ans = 3;
+            break;
+        default:
+            ans = 4;
+            break;
+    }
+    return ans;
+}
+function getCndidateAge(str){
+    var _age = str.substring(0, str.length-1);
+    return _age;
+}
+function getEducationStartTime(str){
+    var _str = str.substring(0, 4);
+    var startTime = new Date(_str);
+    return startTime;
+}
+function getEducationEndTime(str){
+    var _str = str.substring(8, 12);
+    var endTime = new Date(_str);
+    return endTime;
+}
+function getEducationSpecialty(str){
+    return str.split("").slice(5, str.length).join("");
+}
+function getPracticalStartTime(str){
+    var _str = str.substring(0, 7);
+    return new Date(_str);
+}
+function getpracticalEndTime(str){
+    var _str = str.substring(10, 17);
+    return new Date(_str);
 }
 
 function savePersonInfo(){
+    var personInfo = {
+        candidateId: candidateInfo.candidateId,
+        name: candidateInfo.name,
+        sex: candidateInfo.sex,
+        phone: candidateInfo.phone,
+        email: candidateInfo.email,
+        age: candidateInfo.age,
+        idcard: candidateInfo.idcard,
+        politicalAffiliation: candidateInfo.politicalAffiliation,
+        desiredSalary: candidateInfo.desiredSalary,
+        maritalState: candidateInfo.maritalState,
+        bearState: candidateInfo.bearState,
+        nation: candidateInfo.nation,
+        nativePlace: candidateInfo.nativePlaceId,
+        hobby: candidateInfo.hobby,
+        refereeName: candidateInfo.refereeName
+    }
     http.post(SERVER_URL + "/api/resume/saveInfo.do", {
         params: personInfo
     }, function(res){
@@ -79,15 +176,14 @@ function savePersonInfo(){
     })
 }
 
-var educationInfo = {
-    candidateId: cheerData.candidateId,
-    educationList: cheerData.educationList,
-    englishLevel: cheerData.englishLevel,
-    englishScore: cheerData.englishScore,
-    certificate: cheerData.certificate
-}
-
 function saveEducationInfo(){
+    var educationInfo = {
+        candidateId: candidateInfo.candidateId,
+        educationList: educationList,
+        englishLevel: candidateInfo.englishLevel,
+        englishScore: candidateInfo.englishScore,
+        certificate: candidateInfo.certificate
+    }
     http.post(SERVER_URL + "/api/resume/saveEducationInfo.do", {
         params: educationInfo
     }, function(res){
@@ -97,15 +193,14 @@ function saveEducationInfo(){
     })
 }
 
-var skillInfo = {
-    candidateId: cheerData.candidateId,
-    clubList: cheerData.clubList,
-    practicalList: cheerData.practicalList,
-    awardList: cheerData.awardList,
-    opusUrl: cheerData.opusUrl
-}
-
 function saveSkillInfo(){
+    var skillInfo = {
+        candidateId: candidateInfo.candidateId,
+        clubList: clubList,
+        practicalList: practicalList,
+        awardList: candidateInfo.awardList,
+        opusUrl: candidateInfo.opusUrl
+    }
     http.post(SERVER_URL + "/api/resume/saveActualCombat.do" , {
         params: skillInfo
     }, function(res){
