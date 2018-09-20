@@ -4,9 +4,9 @@ var req,
     options,
     SERVER_URL = "//recruit.21cn.com",
     candidateInfo = {}, 
-    educationList = {},
-    clubList = {},
-    practicalList = {};
+    educationList = [{}],
+    clubList = [{}],
+    practicalList = [{}];
 getData();
 function getData(){
     options = {
@@ -15,7 +15,7 @@ function getData(){
         path:'/resume/preview.html',    
         method:'GET',
         headers: {
-            cookie: "_ga=GA1.2.517660036.1536892542; user_trace_token=20180914103541-df2b4de9-b7c6-11e8-b939-5254005c3644; LGUID=20180914103541-df2b5332-b7c6-11e8-b939-5254005c3644; index_location_city=%E5%85%A8%E5%9B%BD; _gid=GA1.2.946790302.1537236741; ab_test_random_num=0; hasDeliver=0; showExpriedIndex=1; showExpriedCompanyHome=1; showExpriedMyPublish=1; JSESSIONID=ABAAABAAAGGABCBD269C47FEBFBEDA36175E113888065CC; _putrc=E79A7F84FB6D775A123F89F2B170EADC; login=true; unick=%E6%8B%89%E5%8B%BE%E7%94%A8%E6%88%B72800; TG-TRACK-CODE=index_resume; Hm_lvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1537236742,1537241770,1537323716,1537330926; gate_login_token=1bd96b2b90990ada7ce17bedcd144cba277234b2a76baefa921428a552fb1b78; Hm_lpvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1537338399; LGRID=20180919142640-f7f6a132-bbd4-11e8-baf2-5254005c3644"
+            cookie: "Hm_lpvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1537416685; Hm_lvt_4233e74dff0ae5bd0a3d81c6ccf756e6=1537416434; LGRID=20180920121124-3d34afa3-bc8b-11e8-baf2-5254005c3644; LGSID=20180920120711-a674d718-bc8a-11e8-a26b-525400f775ce; _ga=GA1.2.1011689793.1537416432; _gid=GA1.2.1743051029.1537416432; unick=%E7%8E%8B%E6%96%8C; TG-TRACK-CODE=index_resume; index_location_city=%E5%85%A8%E5%9B%BD; LG_LOGIN_USER_ID=200760eda259743f445048710fe6e90cf1a263a7a7391310dc339f03b16ddf0c; _putrc=E79A7F84FB6D775A123F89F2B170EADC; gate_login_token=fa330b70241a5a494b246f2de5f5e06362736969115cb6235015b812c2ebbf55; login=true; JSESSIONID=ABAAABAAAGGABCBAC43F41224B8C4F12F47421CFA5C9A32; hasDeliver=0; showExpriedCompanyHome=1; showExpriedIndex=1; showExpriedMyPublish=1; X_HTTP_TOKEN=5acd485755eef553cde6c6c8501ed4ee; LGUID=20180920120711-a674d87b-bc8a-11e8-a26b-525400f775ce; PRE_HOST=; PRE_LAND=; PRE_SITE=; PRE_UTM=; _gat=1; user_trace_token=20180920120711-a674d636-bc8a-11e8-a26b-525400f775ce; WEBTJ-ID=09202018%2C120711-165f52907e730b-02df82aed92a0a8-49183707-1296000-165f52907e8a5b"
         }
     };
     req = http.request(options, function(resp){
@@ -50,35 +50,36 @@ function getData(){
             candidateInfo.awardList = "";
             candidateInfo.photo = $("#baseinfo .mr_headimg:first-child").attr("src")
            
-            educationList.schoolName = $("#educationalBackground .mr_content_l .l2 h4").text();
+            educationList[0].schoolName = $("#educationalBackground .mr_content_l .l2 h4").text();
             var degree = $("#educationalBackground .mr_content_l .l2 span").text();
-            educationList.degreeId = getDegreeId(degree);
+            educationList[0].degreeId = getDegreeId(degree);
             var educationTimeStr = $("#educationalBackground .mr_content_r span").text();
-            educationList.startTime =  getEducationStartTime(educationTimeStr);
-            educationList.endTime = getEducationEndTime(educationTimeStr);
-            educationList.specialty = getEducationSpecialty(degree);
-            educationList.rank = "";
-            educationList.score = "";
-            educationList.aveScore = "";
-            educationList.degree = "";
-            educationList.course = "";
+            educationList[0].startTime =  getEducationStartTime(educationTimeStr);
+            educationList[0].endTime = getEducationEndTime(educationTimeStr);
+            educationList[0].specialty = getEducationSpecialty(degree);
+            educationList[0].rank = "";
+            educationList[0].score = "";
+            educationList[0].aveScore = "";
+            educationList[0].degree = "";
+            educationList[0].course = "";
             
-            practicalList.practicalCompany = $("#workExperience .mr_content_l .l2 h4").text();
+            practicalList[0].practicalCompany = $("#workExperience .mr_content_l .l2 h4").text();
             var practicalTimeStr = $("#workExperience .mr_content_r span").text();
-            practicalList.practicalStartTime = getPracticalStartTime(practicalTimeStr);
-            practicalList.practicalEndTime = getpracticalEndTime(practicalTimeStr);
-            practicalList.practicalDepartment = "";
-            practicalList.decription = $("#workExperience .mr_content_m p").text();
-            practicalList.practicalJob = $("#workExperience .mr_content_l .l2 span").text();
+            practicalList[0].practicalStartTime = getPracticalStartTime(practicalTimeStr);
+            practicalList[0].practicalEndTime = getpracticalEndTime(practicalTimeStr);
+            practicalList[0].practicalDepartment = "";
+            practicalList[0].decription = $("#workExperience .mr_content_m p").text();
+            practicalList[0].practicalJob = $("#workExperience .mr_content_l .l2 span").text();
             
-            clubList.clubCompany = "";
-            clubList.clubDepartment = "";
-            clubList.decription = "";
-            clubList.clubStartTime = "";
-            clubList.clubEndTime = "";
-            clubList.clubJob = "";
+            clubList[0].clubCompany = "";
+            clubList[0].clubDepartment = "";
+            clubList[0].decription = "";
+            clubList[0].clubStartTime = "";
+            clubList[0].clubEndTime = "";
+            clubList[0].clubJob = "";
             
             saveInfo();
+            // printData();
         });
     });
     req.setTimeout(5000,function(){
@@ -93,6 +94,13 @@ function getData(){
         }
     });
     req.end();
+}
+
+function printData(){
+    console.log(candidateInfo);
+    console.log(educationList);
+    console.log(clubList);
+    console.log(practicalList);
 }
 
 function getDegreeId(str){
@@ -187,8 +195,8 @@ function saveInfo(){
         cookies: "jobName=Java%E5%BC%80%E5%8F%91",
         data: {params}
     }
-    console.log(params)
-    http.request(options,  res => {
-        console.log(res);
-    })
+    console.log(JSON.stringify(params));
+    // http.request(options,  res => {
+    //     console.log(res);
+    // })
 }
